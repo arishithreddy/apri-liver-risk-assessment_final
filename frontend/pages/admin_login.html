@@ -58,43 +58,52 @@
   </div>
 
   <script>
-    let generatedOTP = "";
+  
+  let generatedOTP = "";
 
-    function sendOTP() {
-      const email = document.getElementById("email").value.trim().toLowerCase();
+const ALLOWED_EMAILS = [
+  "arishithreddy0854@gmail.com",  // add all authorized emails here
+  "doctor@yashodahospitals.com"
+];
 
-      if (!email) {
-        alert("Please enter a valid email.");
-        return;
-      }
+function sendOTP() {
+  const email = document.getElementById("email").value.trim().toLowerCase();
 
-      // ✅ Generate a 6-digit OTP
-      generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-      console.log("Generated OTP:", generatedOTP); // For testing only
+  if (!email) {
+    alert("Please enter a valid email.");
+    return;
+  }
 
-      // ✅ Send via EmailJS using your template
-      emailjs.send("service_8ko79xq", "template_l41j4z2", {
-        otp: generatedOTP,
-        to_email: email // ✅ Required if your template uses {{to_email}} in the "To" field
-      }).then(() => {
-        alert("OTP sent to your email.");
-        document.getElementById("otpSection").style.display = "block";
-      }).catch(err => {
-        console.error("EmailJS error:", err);
-        alert("Failed to send OTP – check your keys and template.");
-      });
-    }
+  // ✅ Check whitelist FIRST before even trying EmailJS
+  if (!ALLOWED_EMAILS.includes(email)) {
+    alert("Unauthorized email. Access denied.");
+    return;
+  }
 
-    function verifyOTP() {
-      const enteredOTP = document.getElementById("otpInput").value.trim();
-      if (enteredOTP === generatedOTP) {
-        alert("OTP verified! Logging in...");
-        sessionStorage.setItem("verified", "true"); // ✅ For analysis.html protection
-        window.location.href = "analysis.html";
-      } else {
-        alert("Invalid OTP. Please try again.");
-      }
-    }
+  generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+  console.log("Generated OTP:", generatedOTP);
+
+  emailjs.send("service_8ko79xq", "template_l41j4z2", {
+    otp: generatedOTP,
+    to_email: email
+  }).then(() => {
+    alert("OTP sent to your email.");
+    document.getElementById("otpSection").style.display = "block";
+  }).catch(err => {
+    console.error("EmailJS error:", err);
+    alert("Failed to send OTP, check your keys and template.");
+  });
+}
+
+function verifyOTP() {
+  const enteredOTP = document.getElementById("otpInput").value.trim();
+  if (enteredOTP === generatedOTP) {
+    sessionStorage.setItem("verified", "true");
+    window.location.href = "analysis.html";
+  } else {
+    alert("Invalid OTP. Please try again.");
+  }
+}
   </script>
 
 </body>
